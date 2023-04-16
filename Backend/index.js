@@ -1,28 +1,31 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import morgan from 'morgan';
-import connectDB from './config/db.js';
-import userRouter from './routes/user.js';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import connectDB from "./config/db.js";
+import product from "./routes/product_route.js";
+import user from "./routes/user_route.js";
+import bodyParser from 'body-parser';
+
+const app = express();
+
+app.use(bodyParser.urlencoded({ extended: true }));
 
 dotenv.config();
 
+app.use(cors());
+app.use(express.json({ limit: "10mb" }));
+
+//api
+app.get("/", (req, res) => {
+  res.send("Server is running");
+});
+
+app.use("/", product);
+app.use("/", user);
+
+const PORT = process.env.PORT || 3000;
+
 await connectDB();
 
-const PORT = process.env.PORT || 5000;
-
-const app = new express();
-
-if (process.env.NODE_ENV === "development"){
-    app.use(morgan('dev'));
-}
-
-app.use(express.json());
-
-app.get('/', (req, res) => {
-    res.send('API is running...')
-})
-
-app.use('/api/user', userRouter);
-
-
-app.listen(PORT, console.log(`Server is running in ${process.env.NODE_ENV} on port ${PORT}!!!`))
+//server is ruuning
+app.listen(PORT, () => console.log("server is running at port : " + PORT));
